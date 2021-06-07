@@ -1,0 +1,7 @@
+include gbif_autosuggest/gbif_autosuggest.min.js
+include gbif_autosuggest/gbif_autosuggest.min.js.map
+include gbif_autosuggest/metadata.json
+include gbif_autosuggest/package-info.json
+include README.md
+include LICENSE
+include package.json
