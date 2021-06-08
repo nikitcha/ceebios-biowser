@@ -13,6 +13,7 @@ from layouts.graph_tab import graph_layout
 search_bar = dbc.Row(
     [
         dcc.Store(id='session_graph', storage_type='session'),
+        dcc.Store(id='session_paper', storage_type='session'),
         dcc.Store(id='session_selected', storage_type='session'),
         dbc.Col(gbif_autosuggest.GbifAutosuggest(id='input', value='', label='my-label')),
         dbc.Col(
@@ -21,7 +22,7 @@ search_bar = dbc.Row(
     ],
     no_gutters=True,
     className="search-bar",
-    style={'margin':'auto'}
+    style={'margin-left':'10px'}
 )
 
 navbar = dbc.Navbar(
@@ -31,8 +32,8 @@ navbar = dbc.Navbar(
             dbc.Row(
                 [
                     dbc.Col(html.Img(src=app.get_asset_url('ico-ceebios.png'), height="30px")),
-                    dbc.Col(dbc.NavbarBrand("CEEBIOS", className="ml-1", style={'color':'#3D5170', 'margin':'0px'})),
-                    dbc.Col(dbc.NavbarBrand("Biowser", className="ml-1", style={'color':'#fb2056', 'margin':'0px'})),
+                    dbc.Col(dbc.NavbarBrand("CEEBIOS", style={'color':'#3D5170', 'margin-right':'10px'})),
+                    dbc.Col(dbc.NavbarBrand("Biowser", style={'color':'#fb2056', 'margin-left':'10px'})),
                 ],
                 align="center",
                 no_gutters=True,
@@ -44,11 +45,11 @@ navbar = dbc.Navbar(
     color="light", dark=False, className="navbar"
 )
 
-tab_papers = dbc.Card(dbc.CardBody(html.P("Publications")))
-tab_images = dbc.Card(dbc.CardBody(html.P("Images")))
-tab_maps = dbc.Card(dbc.CardBody(html.P("Maps")))
-tab_links = dbc.Card(dbc.CardBody(html.P("Smart Links")))
-tab_wiki = dbc.Card(dbc.CardBody(html.P("Wikipedia")))
+tab_papers = dbc.Card(dbc.CardBody(id='papers-body'))
+tab_images = dbc.Card(dbc.CardBody(id='images-body'))
+tab_maps = dbc.Card(dbc.CardBody(id='maps-body'))
+tab_links = dbc.Card(dbc.CardBody(id='links-body'))
+tab_wiki = dbc.Card(dbc.CardBody(id='wiki-body'))
 
 tabs_layout = html.Div(
     dbc.Tabs(

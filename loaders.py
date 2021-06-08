@@ -1,14 +1,18 @@
-from pygbif import species, occurrences, maps
-import phylo_tree
+from pygbif import species, occurrences
 import pandas
 from wikidata.client import Client
 from qwikidata.sparql import return_sparql_query_results
-client = Client() 
-from utils import safe_get, deep_get
 import requests
 import urllib
 import wikipedia
+from py2neo import Graph
 
+from utils import safe_get, deep_get
+import phylo_tree
+import neo4j_credentials as nc
+
+graph = Graph("bolt://localhost:7687", auth=(nc.user, nc.password))
+client = Client() 
 sci_name = client.get('P225')
 im_prop = client.get('P18')
 
@@ -86,3 +90,64 @@ def get_wiki(name):
     except:
         return None,None
 
+def get_images(taxon, limit=6):
+    res = occurrences.search(taxonKey=taxon,mediatype='stillimage',limit=limit)['results']
+    images = [r['media'][0]['identifier'] for r in res]
+    return images
+
+
+def parse_node(start_node, papers):
+    if str(start_node.labels)==':Taxon':
+        node = { 'id': str(start_node['id']), 'label': start_node['name'], 'rank':start_node['rank'].upper()}
+    elif str(start_node.labels)==':Paper':
+        if start_node['id'] not in papers:
+            paper_dict = dict(start_node)
+            paper_dict.update({'node_id':'Paper '+str(len(papers))})
+            newpaper = {start_node['id']:paper_dict}
+            papers.update(newpaper)
+        node = {'id': start_node['id'], 'label':papers[start_node['id']]['node_id'], 'rank':'PAPER'}
+    else:
+        node = {'id': start_node['name'], 'label': start_node['name'], 'rank':'FUNCTION'}
+    return node
+
+
+def cypher_to_cytoscape(results):
+    nodes, edges = [],[]
+    papers = {}
+    for res in results:
+        res = res['p']
+        for node in res.nodes:
+            tnode = parse_node(node, papers)
+            nodes += [{'data':tnode}]
+        for rel in res.relationships:
+            snode = parse_node(rel.nodes[0], papers)
+            enode = parse_node(rel.nodes[1], papers)
+            edge = {'data': { 'source': snode['id'], 'target': enode['id']}}
+            iedge = {'data': { 'source': enode['id'], 'target': snode['id']}}
+            if (edge not in edges) and (iedge not in edges):
+                edges += [edge]
+    return nodes+edges, papers
+
+
+def get_neo_papers(taxon, limit=50, offset=0):
+    sq = """
+    match (p:Taxon {{id:{}}})-[:IS_SYNONYM*1..2]-(q:Taxon) return p,q;
+    """.format(taxon)
+    synonyms = graph.run(sq).data()
+    alltax = [taxon]
+    for syn in synonyms:
+        for f in ['q','p']:
+            tax = syn[f]['id']
+            if tax not in alltax:
+                alltax.append(tax)
+
+    query = """
+    match p=(t:Taxon)-[:MENTIONS*1..2]-()
+    where t.id in [{}]
+    return p
+    skip {}
+    limit {};
+    """.format(','.join([str(s) for s in alltax]), offset, limit)
+
+    elements, papers = cypher_to_cytoscape(graph.run(query).data())
+    return elements, papers    

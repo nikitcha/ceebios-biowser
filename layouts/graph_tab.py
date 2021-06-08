@@ -3,7 +3,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 
 taxon_tab = html.Div([
-    html.Div(id='graph_display'),
+    html.Div(id='taxon-graph'),
     dbc.Row(children = [
         dbc.ButtonGroup([
             dbc.Button("Get Children", id='children'),
@@ -14,7 +14,17 @@ taxon_tab = html.Div([
     dbc.Col(dcc.Slider(id='nchildren', min=1, max=50, step=1, value=10, marks={1:'1',50:'50'}), 
     style={'width':'200px'})])
 
-paper_tab = html.Div([html.P('Paper Graph')])
+paper_tab = html.Div([
+    html.Div(id='paper-graph-container'),
+    dbc.Row(children = [
+        dbc.ButtonGroup([
+            dbc.Button("Next", id='papers-next'),
+            dbc.Button("Reset", id='papers-reset')],
+            size='sm',
+            style={'padding-left':'50px'}),
+        ]),
+    dbc.Col(dcc.Slider(id='graph-size', min=1, max=200, step=1, value=100, marks={1:'1',200:'200'}), 
+    style={'width':'200px'})])
 
 graph_layout = html.Div([
     dbc.Tabs([
