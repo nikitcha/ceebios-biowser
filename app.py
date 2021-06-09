@@ -12,6 +12,7 @@ import loaders
 import layout
 import urllib
 import dash_leaflet as dl
+from utils import add_graph
 
 #external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 #app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -23,54 +24,79 @@ app.layout = html.Div([
     html.Div(id='page-content')
 ])
 
+def format_paper(key, paper):
+    url = dcc.Link('DOI', href=paper.get('url'), target='_blank', style={'margin-left':'15px','fontSize':10}) if paper.get('url') is not None else None
+    element = html.Div(id=key,children=[
+        html.Span(paper.get('node_id'),style={'fontSize':12}),
+        html.H6(paper['title'], style={'fontSize':14, 'margin-bottom':'0px'}),
+        dbc.Row([            
+            html.Span(paper.get('field'),style={'fontSize':12, 'margin-left':'15px'}),
+            html.Span(paper.get('year'),style={'fontSize':12, 'margin-left':'5px'}),
+        ]),
+        html.P(paper.get('abstract'),style={'fontSize':10, 'margin-bottom':'2px'}),
+        dbc.Row([
+            url,
+            dcc.Link('Semantic Scholar', href=paper.get('s2url'), target='_blank', style={'margin-left':'15px','fontSize':10}),
+        ]),
+    ], style={'margin-top':'5px', 'margin-left':'0px', 'border':'1px dashed #aaaaaa'})
+    return element
 
-@app.callback(Output('session_graph', 'data'), Input('input', 'value'), Input('nchildren', 'value'), Input('children', 'n_clicks'), Input('reset', 'n_clicks'), State('session_selected', 'data'), State('session_graph', 'data'))
-def populate_graph(value, slider, children, reset, selected, graph):
+
+@app.callback(Output('session_graph', 'data'), Input('input', 'value'), Input('children', 'n_clicks'), Input('reset', 'n_clicks'), State('session_graph', 'data'), State('nchildren', 'value'), State('cytoscape', 'tapNodeData'))
+def populate_graph(value, children, reset, graph, slider, cytoscape):
     ctx = dash.callback_context
-    if ctx.triggered[0]['prop_id']=='nchildren.value':
-        raise PreventUpdate
     if ctx.triggered[0]['prop_id']=='input.value':
-        value = ctx.triggered[0]['value']
         backbone = loaders.get_backbone(value)
         if type(graph)==dict:
             graph.update({'backbone':backbone})
         else:
             graph = {'backbone':backbone}
-        cyto = loaders.get_cyto_backbone(backbone)
-        graph.update({'graph':cyto})
+        cyto, selected = loaders.get_cyto_backbone(backbone)
+        if 'graph' in graph:
+            graph.update({'graph':graph['graph']+cyto, 'selected':selected})
+        else:
+            graph.update({'graph':cyto, 'selected':selected})
     if ctx.triggered[0]['prop_id']=='children.n_clicks':
-        child_nodes = loaders.get_children(selected,limit=slider)
-        graph.update({'graph':graph['graph']+child_nodes})
+            child_nodes = loaders.get_children(cytoscape,limit=slider)
+            graph.update({'graph':graph['graph']+child_nodes})
+    if ctx.triggered[0]['prop_id']=='reset.n_clicks':
+        if value:
+            backbone = loaders.get_backbone(value)
+            if type(graph)==dict:
+                graph.update({'backbone':backbone})
+            else:
+                graph = {'backbone':backbone}
+        elif 'backbone' in graph:
+            backbone = graph['backbone']
+        else:
+            raise PreventUpdate
+        cyto, selected = loaders.get_cyto_backbone(backbone)
+        graph.update({'graph':cyto, 'selected':selected})        
     return graph
 
-@app.callback(Output('taxon-graph', 'children'), Input('session_graph', 'data'))
+@app.callback([Output('cytoscape', 'elements'), Output('cytoscape', 'selectedNodeData')], Input('session_graph', 'data'))
 def display_graph(data):
     if data and 'graph' in data:
-        return cyto.Cytoscape(
-                id='cytoscape',        
-                layout = {'name': 'cose'},
-                elements = data['graph'],
-                stylesheet= phylo_tree.default_stylesheet,
-                style={'width': '100%', 'height': '800px'}
-            )        
+        return data['graph'], [{'data':data['selected']}]
     else:
-        return html.P('No Node Selected')
+        return [],[]
 
-    
-@app.callback(Output('session_selected', 'data'), Input('cytoscape', 'tapNodeData'), State('session_selected', 'data'))
-def update_selected(selected, data):
-    print(selected)
-    if selected:
-        return {'selected':selected}
-
-@app.callback(Output('wiki-body', 'children'), Input('session_selected', 'data'))
+@app.callback(Output('wiki-body', 'children'), Input('cytoscape', 'tapNodeData'))
 def display_wiki(data):
-    if not data or not data['selected']:
+    if not data:
         return html.P('No Node Selected')
     else:
-        taxon = int(data['selected']['id'])
-        try:
-            wiki = loaders.get_wiki_info(taxon)
+        taxon = int(data['id'])
+        wiki = loaders.get_wiki_info(taxon)
+        if wiki:
+            try:
+                summary = wiki['page'].summary
+            except:
+                summary = ''
+            try:
+                url = wiki['page'].url
+            except:
+                url = ''
             element = html.Div([
                 html.H4(wiki['label'].capitalize()),
                 html.H6(wiki['description'].capitalize()),
@@ -79,16 +105,18 @@ def display_wiki(data):
                     html.Img(src=wiki['range'], height='300px', style={'margin':'5px'})],
                         no_gutters=True,
                         style={'margin':'auto'}),
-                html.P(wiki['page'].summary, style={'margin':'5px', 'fontSize':14}),
+                html.P(summary, style={'margin':'5px', 'fontSize':14}),
                 dbc.Row([
                     html.P('Source:', style={'margin':'5px', 'fontSize':12}),
-                    dcc.Link('Wikipedia', href=wiki['page'].url, target='_blank', style={'margin':'5px', 'fontSize':12}),
+                    dcc.Link('Wikipedia', href=url, target='_blank', style={'margin':'5px', 'fontSize':12}),
                     dcc.Link('Wikidata', href=wiki['wikidata'], target='_blank', style={'margin':'5px', 'fontSize':12}),
                     ],
                     no_gutters=True,
                     style={'margin':'auto'})
             ])
-        except:
+        else:
+            element = html.Div('No Wikidata element found')
+            '''
             wiki = loaders.get_wiki(taxon)
             element = html.Div([
                 html.P('No Wikidata element found. Result from Wikipedia instead.', style={'margin':'5px', 'fontSize':12}),
@@ -102,14 +130,15 @@ def display_wiki(data):
                     no_gutters=True,
                     style={'margin':'auto'})
             ])            
+            '''
         return element
 
-@app.callback(Output('images-body', 'children'), Input('session_selected', 'data'))
+@app.callback(Output('images-body', 'children'), Input('cytoscape', 'tapNodeData'))
 def display_images(data):
-    if not data or not data['selected']:
+    if not data:
         return html.P('No Node Selected')
     else:
-        images = loaders.get_images(int(data['selected']['id']),limit=8)
+        images = loaders.get_images(int(data['id']),limit=12)
         divs = [html.Div(html.Img(src=im, height='300px'), style={'margin':'5px'}) for im in images]
         carousel = dtc.Carousel(divs,
                     slides_to_scroll=1,
@@ -127,13 +156,13 @@ def display_images(data):
         ])
         return element
 
-@app.callback(Output('links-body', 'children'), Input('session_selected', 'data'))
+@app.callback(Output('links-body', 'children'), Input('cytoscape', 'tapNodeData'))
 def display_links(data):
-    if not data or not data['selected']:
+    if not data:
         return html.P('No Node Selected')
     else:
-        taxon = data['selected']['id']
-        name = data['selected']['label']
+        taxon = data['id']
+        name = data['label']
         url = "https://www.gbif.org/species/"+taxon
         links = {'GBIF':url}
 
@@ -165,12 +194,12 @@ def display_links(data):
         element = html.Div(divs)
         return element
 
-@app.callback(Output('maps-body', 'children'), Input('session_selected', 'data'))
+@app.callback(Output('maps-body', 'children'), Input('cytoscape', 'tapNodeData'))
 def display_map(data):
-    if not data or not data['selected']:
+    if not data:
         return html.P('No Node Selected')
     else:
-        taxon = data['selected']['id']        
+        taxon = data['id']        
         url = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
         attribution = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> '
         url_ = "https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@2x.png?srs=EPSG:3857&bin=hex&hexPerTile=64&style=purpleYellow-noborder.poly&taxonKey="+taxon
@@ -182,33 +211,14 @@ def display_map(data):
         ], style={'height': '800px'})   
         return element
 
-@app.callback(Output('session_paper', 'data'), Input('session_selected', 'data'))
+@app.callback(Output('session_paper', 'data'), Input('cytoscape', 'tapNodeData'))
 def get_papers(data):
-    if not data or not data['selected']:
+    if not data:
         return {}
     else:
-        elements, papers = loaders.get_neo_papers(int(data['selected']['id']),limit=100, offset=0)
+        elements, papers = loaders.get_neo_papers(int(data['id']),limit=200, offset=0)
         return {'paper_graph':elements, 'papers':papers}
-
-
-def format_paper(key, paper):
-    url = dcc.Link('DOI', href=paper.get('url'), target='_blank', style={'margin-left':'15px','fontSize':10}) if paper.get('url') is not None else None
-    element = html.Div(id=key,children=[
-        html.Span(paper.get('node_id'),style={'fontSize':12}),
-        html.H6(paper['title'], style={'fontSize':14, 'margin-bottom':'0px'}),
-        dbc.Row([            
-            html.Span(paper.get('field'),style={'fontSize':12, 'margin-left':'15px'}),
-            html.Span(paper.get('year'),style={'fontSize':12, 'margin-left':'5px'}),
-        ]),
-        html.P(paper.get('abstract'),style={'fontSize':10, 'margin-bottom':'2px'}),
-        dbc.Row([
-            url,
-            dcc.Link('Semantic Scholar', href=paper.get('s2url'), target='_blank', style={'margin-left':'15px','fontSize':10}),
-        ]),
-    ], style={'margin-top':'5px', 'margin-left':'0px', 'border':'1px dashed #aaaaaa'})
-    return element
-
-
+        
 @app.callback(Output('papers-body', 'children'), Input('session_paper', 'data'))
 def display_papers(data):
     if not data or 'papers' not in data:

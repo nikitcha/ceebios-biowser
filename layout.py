@@ -10,19 +10,46 @@ app = dash.Dash(__name__)
 from layouts.landing_page import intro_layout
 from layouts.graph_tab import graph_layout
 
+search_bar_landing = dbc.Row(
+    [
+        dbc.Col(
+            dbc.Button("Start Exploration", id='search', color="primary", className="explore", href='/explore', size='md'),
+        style={'margin-left':'100px'}),
+    ],
+    no_gutters=True,
+    className="search-bar-landing",
+    style={'margin-left':'10px'}
+)
+
 search_bar = dbc.Row(
     [
         dcc.Store(id='session_graph', storage_type='session'),
         dcc.Store(id='session_paper', storage_type='session'),
-        dcc.Store(id='session_selected', storage_type='session'),
-        dbc.Col(gbif_autosuggest.GbifAutosuggest(id='input', value='', label='my-label')),
-        dbc.Col(
-            dbc.Button("Search", color="primary", className="explore", href='/explore', size='md'),
-        ),
+        dbc.Col(gbif_autosuggest.GbifAutosuggest(id='input', value='', label='my-label'))
     ],
     no_gutters=True,
     className="search-bar",
     style={'margin-left':'10px'}
+)
+
+navbar_landing = dbc.Navbar(
+    [
+        html.A(
+            # Use row and col to control vertical alignment of logo / brand
+            dbc.Row(
+                [
+                    dbc.Col(html.Img(src=app.get_asset_url('ico-ceebios.png'), height="30px")),
+                    dbc.Col(dbc.NavbarBrand("CEEBIOS", style={'color':'#3D5170', 'margin-right':'10px'})),
+                    dbc.Col(dbc.NavbarBrand("Biowser", style={'color':'#fb2056', 'margin-left':'10px'})),
+                ],
+                align="center",
+                no_gutters=True,
+            ),
+            href="https://ceebios.com",
+        ),
+        search_bar_landing
+    ],
+    color="light", dark=False, className="navbar"
 )
 
 navbar = dbc.Navbar(
@@ -45,6 +72,7 @@ navbar = dbc.Navbar(
     color="light", dark=False, className="navbar"
 )
 
+
 tab_papers = dbc.Card(dbc.CardBody(id='papers-body'))
 tab_images = dbc.Card(dbc.CardBody(id='images-body'))
 tab_maps = dbc.Card(dbc.CardBody(id='maps-body'))
@@ -63,7 +91,7 @@ tabs_layout = html.Div(
         style={'width':'50%', 'height':'800px'})
 
 index_page = html.Div([
-    navbar,
+    navbar_landing,
     intro_layout])
 
 explore_page = html.Div([

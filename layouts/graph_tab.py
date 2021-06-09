@@ -1,9 +1,19 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+import dash_cytoscape as cyto
+import phylo_tree
 
 taxon_tab = html.Div([
-    html.Div(id='taxon-graph'),
+    html.Div([
+        cyto.Cytoscape(
+                id='cytoscape',        
+                layout = {'name': 'cose'},
+                elements = [],
+                stylesheet= phylo_tree.default_stylesheet,
+                style={'width': '100%', 'height': '800px'}
+            )         
+    ],id='taxon-graph'),
     dbc.Row(children = [
         dbc.ButtonGroup([
             dbc.Button("Get Children", id='children'),

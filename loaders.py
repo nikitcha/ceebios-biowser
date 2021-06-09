@@ -32,10 +32,11 @@ def get_cyto_backbone(backbone):
             if last_id:
                 edges += [{'data': { 'source': id, 'target': last_id}}]
             last_id = id
-    return nodes+edges    
+    selected = { 'id': id, 'label': label, 'rank':o.upper()}
+    return nodes+edges, selected   
 
 def get_children(data, limit = 5):
-    selected_id = data['selected']['id']
+    selected_id = data['id']
     children = species.name_usage(key=int(selected_id), data='children', limit=limit,offset=0)['results']
     children = pandas.DataFrame(children)
     if 'canonicalName' in children.columns:
