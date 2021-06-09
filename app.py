@@ -194,6 +194,21 @@ def display_links(data):
         element = html.Div(divs)
         return element
 
+@app.callback(Output('resources-body', 'children'), Input('cytoscape', 'tapNodeData'))
+def display_resources(data):
+    if not data:
+        return html.P('No Node Selected')
+    else:
+        name = data['label']
+        return html.Div([dbc.Tabs(
+        [
+            dbc.Tab(html.Embed(src="https://tree.opentreeoflife.org/", style={'width':'100%', 'height':'700px'}), label="Tree of Life"),
+            dbc.Tab(html.Embed(src="https://eol.org/search?q={}".format(name.replace(' ','+')),style={'width':'100%', 'height':'700px'}), label="EOL"),
+            dbc.Tab(html.Embed(src="https://www.onezoom.org/AT/@biota=93302?img=best_any&anim=jump#x775,y1113,w1.4450", style={'width':'100%', 'height':'700px'}), label="OneZoom"),
+            dbc.Tab(html.Embed(src="https://openknowledgemaps.org/",style={'width':'100%', 'height':'700px'}), label="Open Knowledge Map")
+        ])])
+
+
 @app.callback(Output('maps-body', 'children'), Input('cytoscape', 'tapNodeData'))
 def display_map(data):
     if not data:

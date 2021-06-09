@@ -78,15 +78,17 @@ tab_images = dbc.Card(dbc.CardBody(id='images-body'))
 tab_maps = dbc.Card(dbc.CardBody(id='maps-body'))
 tab_links = dbc.Card(dbc.CardBody(id='links-body'))
 tab_wiki = dbc.Card(dbc.CardBody(id='wiki-body'))
+tab_resources = html.Div(id='resources-body')
 
 tabs_layout = html.Div(
     dbc.Tabs(
         [
-            dbc.Tab(tab_wiki, label="Wikipedia"),
-            dbc.Tab(tab_images, label="Images"),
-            dbc.Tab(tab_papers, label="Publications"),
-            dbc.Tab(tab_maps, label="Maps"),
-            dbc.Tab(tab_links, label="Smart Links"),
+            dbc.Tab(tab_wiki, label="Wikipedia", style={'width':'100%', 'height':'800px'}),
+            dbc.Tab(tab_images, label="Images", style={'width':'100%', 'height':'800px'}),
+            dbc.Tab(tab_papers, label="Publications", style={'width':'100%', 'height':'800px'}),
+            dbc.Tab(tab_maps, label="Maps", style={'width':'100%', 'height':'800px'}),
+            dbc.Tab(tab_links, label="Smart Links", style={'width':'100%', 'height':'800px'}),
+            dbc.Tab(tab_resources, label="Other Resources", style={'width':'100%', 'height':'800px'}),
         ]),
         style={'width':'50%', 'height':'800px'})
 
