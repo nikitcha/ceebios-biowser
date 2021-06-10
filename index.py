@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output
 from app import app
 from layout import explore_page, index_page
 from layouts.graph_tab import paper_tab, taxon_tab
-import callbacks
+#from utils import init_db, get_connection
 
 def serve_layout():
     return html.Div([
@@ -33,4 +33,5 @@ def display_page(pathname):
         # You could also return a 404 "URL not found" page here
 
 if __name__ == '__main__':
+    #init_db(get_connection())
     app.run_server(debug=True)

@@ -11,25 +11,40 @@ import loaders
 import urllib
 import dash_leaflet as dl
 from app import app
-from utils import paper_layout
+from utils import paper_layout, clean_graph #, get_connection, get_userdata, add_userdata
+#connection = get_connection()
 
-@app.callback(Output('session-graph', 'data'), Input('input', 'value'), Input('children', 'n_clicks'), Input('reset', 'n_clicks'), State('session-graph', 'data'), State('nchildren', 'value'), State('cytoscape', 'tapNodeData'))
-def populate_graph(value, children, reset, graph, slider, cytoscape):
+@app.callback(Output('session-graph', 'data'), 
+              Input('input', 'value'), Input('children', 'n_clicks'), Input('reset', 'n_clicks'), 
+              State('session-graph', 'data'), State('nchildren', 'value'), State('cytoscape', 'tapNodeData')) #, State('username', 'value'))
+def populate_graph(value, children, reset, graph, slider, selected):
     ctx = dash.callback_context
+    #add_userdata(connection, user, value)
     if ctx.triggered[0]['prop_id']=='input.value':
         backbone = loaders.get_backbone(value)
         if type(graph)==dict:
             graph.update({'backbone':backbone})
         else:
             graph = {'backbone':backbone}
-        cyto, selected = loaders.get_cyto_backbone(backbone)
+        cyto = loaders.get_cyto_backbone(backbone)
         if 'graph' in graph:
-            graph.update({'graph':graph['graph']+cyto, 'selected':selected})
+            graph.update({'graph':clean_graph(graph['graph']+cyto)})
         else:
-            graph.update({'graph':cyto, 'selected':selected})
+            graph.update({'graph':cyto})
     if ctx.triggered[0]['prop_id']=='children.n_clicks':
-            child_nodes = loaders.get_children(cytoscape,limit=slider)
-            graph.update({'graph':graph['graph']+child_nodes})
+        if selected:
+            taxon = selected['id']
+            if 'offset' in graph and taxon in graph['offset']:
+                offset = graph['offset'][taxon]
+                graph['offset'][taxon] += slider                
+            else:
+                offset = 0
+                if 'offset' in graph:
+                    graph['offset'].update({taxon:slider})
+                else:
+                    graph.update({'offset':{taxon:slider}})
+            child_nodes = loaders.get_children(selected,limit=slider, offset = offset)
+            graph.update({'graph':clean_graph(graph['graph']+child_nodes)})
     if ctx.triggered[0]['prop_id']=='reset.n_clicks':
         if value:
             backbone = loaders.get_backbone(value)
@@ -41,16 +56,16 @@ def populate_graph(value, children, reset, graph, slider, cytoscape):
             backbone = graph['backbone']
         else:
             raise PreventUpdate
-        cyto, selected = loaders.get_cyto_backbone(backbone)
-        graph.update({'graph':cyto, 'selected':selected})        
+        cyto = loaders.get_cyto_backbone(backbone)
+        graph.update({'graph':cyto, 'offset':{}})        
     return graph
 
-@app.callback([Output('cytoscape', 'elements'), Output('cytoscape', 'selectedNodeData')], Input('session-graph', 'data'))
+@app.callback(Output('cytoscape', 'elements'), Input('session-graph', 'data'))
 def display_graph(data):
     if data and 'graph' in data:
-        return data['graph'], [{'data':data['selected']}]
+        return data['graph']
     else:
-        return [],[]
+        return []
 
 @app.callback(Output('wiki-body', 'children'), Input('cytoscape', 'tapNodeData'))
 def display_wiki(data):
@@ -253,4 +268,39 @@ def display_paper_graph(data):
                 style={'width': '100%','height': '800px'}
             )   
 
+@app.callback(
+    Output("cyto-paper", "generateImage"),
+    Input("papers-png", "n_clicks"),
+    prevent_initial_call=True)
+def paper_png(n_clicks):
+    return {
+        'type': 'png',
+        'action': 'download'
+        }
 
+@app.callback(
+    Output("cytoscape", "generateImage"),
+    Input("graph-png", "n_clicks"),
+    prevent_initial_call=True)
+def paper_png(n_clicks):
+    return {
+        'type': 'png',
+        'action': 'download'
+        }        
+
+"""
+@app.callback(
+    Output("input", "value"),
+    Input("history-container", "value"))
+def search_history(value):
+    print(value)
+    return None
+
+@app.callback(    
+    Output("history-container", "value"),
+    Input("username", "value"))
+def search_history(user):
+    history = get_userdata(connection, username=user)
+    print(history)
+    return None
+"""

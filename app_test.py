@@ -1,89 +1,193 @@
 import dash
+from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
 
-import flask
+import dash_cytoscape as cyto
+
+# enable svg export
+cyto.load_extra_layouts()
 
 app = dash.Dash(__name__)
+server = app.server
 
-url_bar_and_content_div = html.Div([
-    dcc.Location(id='url', refresh=False),
-    html.Div(id='page-content')
+# Object declaration
+basic_elements = [
+    {
+        'data': {'id': 'one', 'label': 'Node 1'},
+        'position': {'x': 50, 'y': 50}
+    },
+    {
+        'data': {'id': 'two', 'label': 'Node 2'},
+        'position': {'x': 200, 'y': 200}
+    },
+    {
+        'data': {'id': 'three', 'label': 'Node 3'},
+        'position': {'x': 100, 'y': 150}
+    },
+    {
+        'data': {'id': 'four', 'label': 'Node 4'},
+        'position': {'x': 400, 'y': 50}
+    },
+    {
+        'data': {'id': 'five', 'label': 'Node 5'},
+        'position': {'x': 250, 'y': 100}
+    },
+    {
+        'data': {'id': 'six', 'label': 'Node 6', 'parent': 'three'},
+        'position': {'x': 150, 'y': 150}
+    },
+    {
+        'data': {
+            'id': 'one-two',
+            'source': 'one',
+            'target': 'two',
+            'label': 'Edge from Node1 to Node2'
+        }
+    },
+    {
+        'data': {
+            'id': 'one-five',
+            'source': 'one',
+            'target': 'five',
+            'label': 'Edge from Node 1 to Node 5'
+        }
+    },
+    {
+        'data': {
+            'id': 'two-four',
+            'source': 'two',
+            'target': 'four',
+            'label': 'Edge from Node 2 to Node 4'
+        }
+    },
+    {
+        'data': {
+            'id': 'three-five',
+            'source': 'three',
+            'target': 'five',
+            'label': 'Edge from Node 3 to Node 5'
+        }
+    },
+    {
+        'data': {
+            'id': 'three-two',
+            'source': 'three',
+            'target': 'two',
+            'label': 'Edge from Node 3 to Node 2'
+        }
+    },
+    {
+        'data': {
+            'id': 'four-four',
+            'source': 'four',
+            'target': 'four',
+            'label': 'Edge from Node 4 to Node 4'
+        }
+    },
+    {
+        'data': {
+            'id': 'four-six',
+            'source': 'four',
+            'target': 'six',
+            'label': 'Edge from Node 4 to Node 6'
+        }
+    },
+    {
+        'data': {
+            'id': 'five-one',
+            'source': 'five',
+            'target': 'one',
+            'label': 'Edge from Node 5 to Node 1'
+        }
+    },
+]
+
+styles = {
+    'output': {
+        'overflow-y': 'scroll',
+        'overflow-wrap': 'break-word',
+        'height': 'calc(100% - 25px)',
+        'border': 'thin lightgrey solid'
+    },
+    'tab': {'height': 'calc(98vh - 115px)'}
+}
+
+
+app.layout = html.Div([
+    html.Div(className='eight columns', children=[
+        cyto.Cytoscape(
+            id='cytoscape-image-export',
+            elements=basic_elements,
+            layout={
+                'name': 'preset'
+            },
+            style={
+                'height': '95vh',
+                'width': 'calc(100% - 500px)',
+                'float': 'left'
+            }
+        )
+    ]),
+
+    html.Div(className='four columns', children=[
+        dcc.Tabs(id='tabs-image-export', children=[
+            dcc.Tab(label='generate jpg', value='jpg'),
+            dcc.Tab(label='generate png', value='png')
+        ]),
+        html.Div(style=styles['tab'], children=[
+            html.Div(
+                id='image-text',
+                children='image data will appear here',
+                style=styles['output']
+            )
+        ]),
+        html.Div('Download graph:'),
+        html.Button("as jpg", id="btn-get-jpg"),
+        html.Button("as png", id="btn-get-png"),
+        html.Button("as svg", id="btn-get-svg")
+    ])
 ])
 
-layout_index = html.Div([
-    dcc.Link('Navigate to "/page-1"', href='/page-1'),
-    html.Br(),
-    dcc.Link('Navigate to "/page-2"', href='/page-2'),
-])
 
-layout_page_1 = html.Div([
-    html.H2('Page 1'),
-    dcc.Input(id='input-1-state', type='text', value='Montreal'),
-    dcc.Input(id='input-2-state', type='text', value='Canada'),
-    html.Button(id='submit-button', n_clicks=0, children='Submit'),
-    html.Div(id='output-state'),
-    html.Br(),
-    dcc.Link('Navigate to "/"', href='/'),
-    html.Br(),
-    dcc.Link('Navigate to "/page-2"', href='/page-2'),
-])
-
-layout_page_2 = html.Div([
-    html.H2('Page 2'),
-    dcc.Dropdown(
-        id='page-2-dropdown',
-        options=[{'label': i, 'value': i} for i in ['LA', 'NYC', 'MTL']],
-        value='LA'
-    ),
-    html.Div(id='page-2-display-value'),
-    html.Br(),
-    dcc.Link('Navigate to "/"', href='/'),
-    html.Br(),
-    dcc.Link('Navigate to "/page-1"', href='/page-1'),
-])
-
-# index layout
-app.layout = url_bar_and_content_div
-
-# "complete" layout
-app.validation_layout = html.Div([
-    url_bar_and_content_div,
-    layout_index,
-    layout_page_1,
-    layout_page_2,
-])
-
-# Index callbacks
-@app.callback(Output('page-content', 'children'),
-              Input('url', 'pathname'))
-def display_page(pathname):
-    if pathname == "/page-1":
-        return layout_page_1
-    elif pathname == "/page-2":
-        return layout_page_2
-    else:
-        return layout_index
+@app.callback(
+    Output('image-text', 'children'),
+    Input('cytoscape-image-export', 'imageData'),
+    )
+def put_image_string(data):
+    return data
 
 
-# Page 1 callbacks
-@app.callback(Output('output-state', 'children'),
-              Input('submit-button', 'n_clicks'),
-              State('input-1-state', 'value'),
-              State('input-2-state', 'value'))
-def update_output(n_clicks, input1, input2):
-    return ('The Button has been pressed {} times,'
-            'Input 1 is "{}",'
-            'and Input 2 is "{}"').format(n_clicks, input1, input2)
+@app.callback(
+    Output("cytoscape-image-export", "generateImage"),
+    [
+        Input('tabs-image-export', 'value'),
+        Input("btn-get-jpg", "n_clicks"),
+        Input("btn-get-png", "n_clicks"),
+        Input("btn-get-svg", "n_clicks"),
+    ])
+def get_image(tab, get_jpg_clicks, get_png_clicks, get_svg_clicks):
 
+    # File type to output of 'svg, 'png', 'jpg', or 'jpeg' (alias of 'jpg')
+    ftype = tab
 
-# Page 2 callbacks
-@app.callback(Output('page-2-display-value', 'children'),
-              Input('page-2-dropdown', 'value'))
-def display_value(value):
-    print('display_value')
-    return 'You have selected "{}"'.format(value)
+    # 'store': Stores the image data in 'imageData' !only jpg/png are supported
+    # 'download'`: Downloads the image as a file with all data handling
+    # 'both'`: Stores image data and downloads image as file.
+    action = 'store'
+
+    ctx = dash.callback_context
+    if ctx.triggered:
+        input_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+        if input_id != "tabs":
+            action = "download"
+            ftype = input_id.split("-")[-1]
+
+    return {
+        'type': ftype,
+        'action': action
+        }
 
 
 if __name__ == '__main__':
