@@ -27,7 +27,10 @@ def add_userdata(conn: Connection, username:str, search:str):
         print('Entry present')
 
 def get_userdata(conn: Connection, username:str):
-    df = pandas.read_sql(f"SELECT DISTINCT search FROM userdata where username='{username}'", con=conn)
+    if username=='admin':
+        df = pandas.read_sql(f"SELECT DISTINCT search FROM userdata", con=conn)
+    else:
+        df = pandas.read_sql(f"SELECT DISTINCT search FROM userdata where username='{username}'", con=conn)
     return df
 
 

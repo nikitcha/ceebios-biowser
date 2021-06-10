@@ -66,8 +66,8 @@ navbar = dbc.Navbar(
             href="https://ceebios.com",
         ),
         search_bar,
-        #dbc.Input(id="username", placeholder="User Name", type="text", style={'width':'200px', 'margin-right':'10px', 'margin-left':'50px'}),
-        #dcc.Dropdown(id='history-container',placeholder='Search History',  style={'width':'200px', 'margin-right':'10px'})
+        dbc.Input(id="username", placeholder="User Name", type="text",debounce=True, style={'width':'200px', 'margin-right':'10px', 'margin-left':'50px'}),
+        dcc.Dropdown(id='history-container',placeholder='Search History',  style={'width':'300px', 'margin-right':'10px'})
     ],
     color="light", dark=False, className="navbar"
 )

@@ -11,16 +11,21 @@ import loaders
 import urllib
 import dash_leaflet as dl
 from app import app
-from utils import paper_layout, clean_graph #, get_connection, get_userdata, add_userdata
-#connection = get_connection()
+from utils import paper_layout, clean_graph, get_connection, get_userdata, add_userdata
+connection = get_connection()
 
-@app.callback(Output('session-graph', 'data'), 
-              Input('input', 'value'), Input('children', 'n_clicks'), Input('reset', 'n_clicks'), 
-              State('session-graph', 'data'), State('nchildren', 'value'), State('cytoscape', 'tapNodeData')) #, State('username', 'value'))
-def populate_graph(value, children, reset, graph, slider, selected):
+@app.callback([Output('session-graph', 'data'), Output("history-container", "options")], 
+              Input('input', 'value'), Input('children', 'n_clicks'), Input('reset', 'n_clicks'), Input('username', 'value'),
+              State('session-graph', 'data'), State('nchildren', 'value'), State('cytoscape', 'tapNodeData'))
+def populate_graph(value, children, reset, user, graph, slider, selected):
     ctx = dash.callback_context
-    #add_userdata(connection, user, value)
+    username = 'anonymous' if not user else user
+    if value:
+        add_userdata(connection, username, value['name'])
+    history = get_userdata(connection, username=username)
+    options = [{'label':v, 'value':v} for v in history['search'].values]
     if ctx.triggered[0]['prop_id']=='input.value':
+        search_term = value
         backbone = loaders.get_backbone(value)
         if type(graph)==dict:
             graph.update({'backbone':backbone})
@@ -58,7 +63,7 @@ def populate_graph(value, children, reset, graph, slider, selected):
             raise PreventUpdate
         cyto = loaders.get_cyto_backbone(backbone)
         graph.update({'graph':cyto, 'offset':{}})        
-    return graph
+    return graph, options
 
 @app.callback(Output('cytoscape', 'elements'), Input('session-graph', 'data'))
 def display_graph(data):
@@ -67,11 +72,13 @@ def display_graph(data):
     else:
         return []
 
-@app.callback(Output('wiki-body', 'children'), Input('cytoscape', 'tapNodeData'))
-def display_wiki(data):
+@app.callback(Output('wiki-body', 'children'), Input('cytoscape', 'tapNodeData'), State('username', 'value'))
+def display_wiki(data, user):
+    username = 'anonymous' if not user else user
     if not data:
         return html.P('No Node Selected')
     else:
+        add_userdata(connection, username, data['label'])
         taxon = int(data['id'])
         wiki = loaders.get_wiki_info(taxon)
         if wiki:
@@ -288,19 +295,3 @@ def paper_png(n_clicks):
         'action': 'download'
         }        
 
-"""
-@app.callback(
-    Output("input", "value"),
-    Input("history-container", "value"))
-def search_history(value):
-    print(value)
-    return None
-
-@app.callback(    
-    Output("history-container", "value"),
-    Input("username", "value"))
-def search_history(user):
-    history = get_userdata(connection, username=user)
-    print(history)
-    return None
-"""
