@@ -6,6 +6,7 @@ import phylo_tree
 
 taxon_tab = html.Div([
     html.Div([
+        dcc.Store(id='session-graph', storage_type='session'),        
         cyto.Cytoscape(
                 id='cytoscape',        
                 layout = {'name': 'cose'},
@@ -25,6 +26,7 @@ taxon_tab = html.Div([
     style={'width':'200px'})])
 
 paper_tab = html.Div([
+    dcc.Store(id='session-paper', storage_type='session'),    
     html.Div(id='paper-graph-container'),
     dbc.Row(children = [
         dbc.ButtonGroup([

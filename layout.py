@@ -23,8 +23,6 @@ search_bar_landing = dbc.Row(
 
 search_bar = dbc.Row(
     [
-        dcc.Store(id='session_graph', storage_type='session'),
-        dcc.Store(id='session_paper', storage_type='session'),
         dbc.Col(gbif_autosuggest.GbifAutosuggest(id='input', value='', label='my-label'))
     ],
     no_gutters=True,
@@ -103,8 +101,6 @@ explore_page = html.Div([
         tabs_layout    
     ])
     ])
-
-
 
 
 
