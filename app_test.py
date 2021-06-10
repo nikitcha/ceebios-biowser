@@ -1,19 +1,90 @@
+import dash
+import dash_core_components as dcc
 import dash_html_components as html
-import dash_leaflet as dl
-from dash import Dash
+from dash.dependencies import Input, Output, State
 
-# Cool, dark tiles by Stadia Maps.
-url = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
-attribution = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> '
-url_ = "https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@2x.png?srs=EPSG:3857&bin=hex&hexPerTile=64&style=purpleYellow-noborder.poly&taxonKey=120"
-# Create app.
-app = Dash()
-app.layout = html.Div([
-    dl.Map([
-        dl.TileLayer(url=url, maxZoom=10, attribution=attribution),
-        dl.TileLayer(url=url_, maxZoom=10)
-        ], zoom=2)
-], style={'width': '100%', 'height': '600px', 'margin': "auto", "display": "block", "position": "relative"})
+import flask
+
+app = dash.Dash(__name__)
+
+url_bar_and_content_div = html.Div([
+    dcc.Location(id='url', refresh=False),
+    html.Div(id='page-content')
+])
+
+layout_index = html.Div([
+    dcc.Link('Navigate to "/page-1"', href='/page-1'),
+    html.Br(),
+    dcc.Link('Navigate to "/page-2"', href='/page-2'),
+])
+
+layout_page_1 = html.Div([
+    html.H2('Page 1'),
+    dcc.Input(id='input-1-state', type='text', value='Montreal'),
+    dcc.Input(id='input-2-state', type='text', value='Canada'),
+    html.Button(id='submit-button', n_clicks=0, children='Submit'),
+    html.Div(id='output-state'),
+    html.Br(),
+    dcc.Link('Navigate to "/"', href='/'),
+    html.Br(),
+    dcc.Link('Navigate to "/page-2"', href='/page-2'),
+])
+
+layout_page_2 = html.Div([
+    html.H2('Page 2'),
+    dcc.Dropdown(
+        id='page-2-dropdown',
+        options=[{'label': i, 'value': i} for i in ['LA', 'NYC', 'MTL']],
+        value='LA'
+    ),
+    html.Div(id='page-2-display-value'),
+    html.Br(),
+    dcc.Link('Navigate to "/"', href='/'),
+    html.Br(),
+    dcc.Link('Navigate to "/page-1"', href='/page-1'),
+])
+
+# index layout
+app.layout = url_bar_and_content_div
+
+# "complete" layout
+app.validation_layout = html.Div([
+    url_bar_and_content_div,
+    layout_index,
+    layout_page_1,
+    layout_page_2,
+])
+
+# Index callbacks
+@app.callback(Output('page-content', 'children'),
+              Input('url', 'pathname'))
+def display_page(pathname):
+    if pathname == "/page-1":
+        return layout_page_1
+    elif pathname == "/page-2":
+        return layout_page_2
+    else:
+        return layout_index
+
+
+# Page 1 callbacks
+@app.callback(Output('output-state', 'children'),
+              Input('submit-button', 'n_clicks'),
+              State('input-1-state', 'value'),
+              State('input-2-state', 'value'))
+def update_output(n_clicks, input1, input2):
+    return ('The Button has been pressed {} times,'
+            'Input 1 is "{}",'
+            'and Input 2 is "{}"').format(n_clicks, input1, input2)
+
+
+# Page 2 callbacks
+@app.callback(Output('page-2-display-value', 'children'),
+              Input('page-2-dropdown', 'value'))
+def display_value(value):
+    print('display_value')
+    return 'You have selected "{}"'.format(value)
+
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug=True)

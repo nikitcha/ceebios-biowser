@@ -4,7 +4,7 @@ import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_trich_components as dtc
-from dash.dependencies import Output, Input, State
+from dash.dependencies import Output, Input, State, ALL
 import phylo_tree
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
@@ -19,10 +19,14 @@ from utils import add_graph
 
 app = dash.Dash(__name__, suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.LITERA])
 
-app.layout = html.Div([
+def serve_layout():
+    return html.Div([
     dcc.Location(id='url', refresh=False),
     html.Div(id='page-content')
 ])
+
+
+app.layout = serve_layout
 
 def format_paper(key, paper):
     url = dcc.Link('DOI', href=paper.get('url'), target='_blank', style={'margin-left':'15px','fontSize':10}) if paper.get('url') is not None else None
@@ -222,10 +226,20 @@ def display_map(data):
             dl.Map([
                 dl.TileLayer(url=url, maxZoom=10, attribution=attribution),
                 dl.TileLayer(url=url_, maxZoom=10),
-                ], zoom=2)
+                dl.EasyButton(icon='fa-home', n_clicks=0, id="btn")
+                ], zoom=2, animate=False, style={'height':'800px'}, id='map')
         ], style={'height': '800px'})   
         return element
 
+@app.callback(Output("map", "center"),
+              Output("map", "zoom"),
+              [Input("btn", "n_clicks")])
+def easy_btn(click):
+    center = [-6.7, 0]
+    zoom = 2
+    return center, zoom
+
+'''
 @app.callback(Output('session_paper', 'data'), Input('cytoscape', 'tapNodeData'))
 def get_papers(data):
     if not data:
@@ -233,7 +247,30 @@ def get_papers(data):
     else:
         elements, papers = loaders.get_neo_papers(int(data['id']),limit=200, offset=0)
         return {'paper_graph':elements, 'papers':papers}
-        
+
+'''        
+@app.callback(Output('session_paper', 'data'), Input('cytoscape', 'tapNodeData'), Input('papers-next', 'n_clicks'), Input('papers-reset', 'n_clicks'), State('graph-size','value'), State({"type": 'session-paper', "index": ALL}, 'data'))
+def get_papers(selected, next, reset, value, data):
+    ctx = dash.callback_context
+    if not selected:
+        return {}
+    else:
+        if data:
+            data = data[0]
+        else:
+            data = {}
+        if ctx.triggered[0]['prop_id']=='papers-next.n_clicks':      
+            offset = 0 if 'offset' not in data else data['offset']
+        elif ctx.triggered[0]['prop_id']=='papers-reset.n_clicks':
+            offset = 0
+        elif ctx.triggered[0]['prop_id']=='cytoscape.tapNodeData':
+            offset = 0 if 'offset' not in data else data['offset']
+        else:
+            raise PreventUpdate
+        elements, papers = loaders.get_neo_papers(int(selected['id']),limit=value, offset=offset)
+        data.update({'paper_graph':elements, 'papers':papers, 'offset':offset+value})
+        return data
+
 @app.callback(Output('papers-body', 'children'), Input('session_paper', 'data'))
 def display_papers(data):
     if not data or 'papers' not in data:
@@ -253,13 +290,13 @@ def display_paper_graph(data):
     if not data or 'paper_graph' not in data:
         return html.P('No Node Selected')
     else:  
-        #return html.P(str(data['paper_graph']))
         return cyto.Cytoscape(
                 id='cyto-paper',        
                 layout = {'name': 'cose'},
                 elements = data['paper_graph'],
-                stylesheet= phylo_tree.default_stylesheet,
-                style={'width': '100%', 'height': '800px'}
+                zoom=2,
+                stylesheet= phylo_tree.small_stylesheet,
+                style={'width': '100%','height': '800px'}
             )   
 
 
@@ -275,4 +312,4 @@ def display_page(pathname):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)

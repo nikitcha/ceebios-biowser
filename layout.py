@@ -83,10 +83,10 @@ tab_resources = html.Div(id='resources-body')
 tabs_layout = html.Div(
     dbc.Tabs(
         [
+            dbc.Tab(tab_maps, label="Maps", style={'width':'100%', 'height':'800px'}),
             dbc.Tab(tab_wiki, label="Wikipedia", style={'width':'100%', 'height':'800px'}),
             dbc.Tab(tab_images, label="Images", style={'width':'100%', 'height':'800px'}),
             dbc.Tab(tab_papers, label="Publications", style={'width':'100%', 'height':'800px'}),
-            dbc.Tab(tab_maps, label="Maps", style={'width':'100%', 'height':'800px'}),
             dbc.Tab(tab_links, label="Smart Links", style={'width':'100%', 'height':'800px'}),
             dbc.Tab(tab_resources, label="Other Resources", style={'width':'100%', 'height':'800px'}),
         ]),
