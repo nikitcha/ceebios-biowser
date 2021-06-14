@@ -11,9 +11,11 @@ from utils import safe_get, deep_get
 import phylo_tree
 import neo4j_credentials as nc
 
-graph_local = Graph("bolt://localhost:7687", auth=(nc.user, nc.password))
-#graph_aws = Graph(nc.ip, auth=(nc.user, nc.password))
-graph = graph_local
+if False:
+    graph = Graph("bolt://localhost:7687", auth=(nc.user, nc.password))
+else:
+    graph = Graph(nc.ip, auth=(nc.user, nc.password))
+
 client = Client() 
 sci_name = client.get('P225')
 im_prop = client.get('P18')
