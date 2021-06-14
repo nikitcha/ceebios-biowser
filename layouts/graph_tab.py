@@ -12,7 +12,7 @@ taxon_tab = html.Div([
                 layout = {'name': 'cose'},
                 elements = [],
                 stylesheet= phylo_tree.default_stylesheet,
-                style={'width': '100%', 'height': '800px'}
+                style={'width': '100%', 'height': '900px'}
             )         
     ],id='taxon-graph'),
     dbc.Row(children = [

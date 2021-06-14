@@ -64,18 +64,18 @@ def clean_graph(graph):
 
     
 def paper_layout(key, paper):
-    url = dcc.Link('DOI', href=paper.get('url'), target='_blank', style={'margin-left':'15px','fontSize':10}) if paper.get('url') is not None else None
+    url = dcc.Link('DOI', href=paper.get('url'), target='_blank', style={'padding-left':'15px','fontSize':10}) if paper.get('url') is not None else None
     element = html.Div(id=key,children=[
         html.Span(paper.get('node_id'),style={'fontSize':12}),
-        html.H6(paper['title'], style={'fontSize':14, 'margin-bottom':'0px'}),
+        html.H6(paper['title'], style={'fontSize':14, 'padding-bottom':'0px'}),
         dbc.Row([            
-            html.Span(paper.get('field'),style={'fontSize':12, 'margin-left':'15px'}),
-            html.Span(paper.get('year'),style={'fontSize':12, 'margin-left':'5px'}),
+            html.Span(paper.get('field'),style={'fontSize':12, 'padding-left':'15px'}),
+            html.Span(paper.get('year'),style={'fontSize':12, 'padding-left':'15px'}),
         ]),
-        html.P(paper.get('abstract'),style={'fontSize':10, 'margin-bottom':'2px'}),
+        html.P(paper.get('abstract'),style={'fontSize':10, 'padding-bottom':'0px'}),
         dbc.Row([
             url,
-            dcc.Link('Semantic Scholar', href=paper.get('s2url'), target='_blank', style={'margin-left':'15px','fontSize':10}),
+            dcc.Link('Semantic Scholar', href=paper.get('s2url'), target='_blank', style={'padding-left':'15px','fontSize':10}),
         ]),
-    ], style={'margin-top':'5px', 'margin-left':'0px', 'border':'1px dashed #aaaaaa'})
+    ], style={'margin-top':'5px', 'border':'1px dashed #aaaaaa', 'width':'98%','padding-left':'5px'})
     return element

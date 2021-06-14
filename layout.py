@@ -73,24 +73,25 @@ navbar = dbc.Navbar(
 )
 
 
-tab_papers = dbc.Card(dbc.CardBody(id='papers-body'))
-tab_images = dbc.Card(dbc.CardBody(id='images-body'))
-tab_maps = dbc.Card(dbc.CardBody(id='maps-body'))
-tab_links = dbc.Card(dbc.CardBody(id='links-body'))
-tab_wiki = dbc.Card(dbc.CardBody(id='wiki-body'))
+tab_papers = html.Div(id='papers-body')
+tab_images = html.Div(id='images-body')
+tab_maps = html.Div(id='maps-body')
+tab_links = html.Div(id='links-body')
+tab_wiki = html.Div(id='wiki-body')
 tab_resources = html.Div(id='resources-body')
 
+tab_style = {'margin':'0','padding':'0','border':'0'}
 tabs_layout = html.Div(
     dbc.Tabs(
         [
-            dbc.Tab(tab_maps, label="Maps", style={'width':'100%', 'height':'800px'}),
-            dbc.Tab(tab_wiki, label="Wikipedia", style={'width':'100%', 'height':'800px'}),
-            dbc.Tab(tab_images, label="Images", style={'width':'100%', 'height':'800px'}),
-            dbc.Tab(tab_papers, label="Publications", style={'width':'100%', 'height':'800px'}),
-            dbc.Tab(tab_links, label="Smart Links", style={'width':'100%', 'height':'800px'}),
-            dbc.Tab(tab_resources, label="Other Resources", style={'width':'100%', 'height':'800px'}),
+            dbc.Tab(tab_maps, label="Maps", style=tab_style),
+            dbc.Tab(tab_wiki, label="Wikipedia", style=tab_style),
+            dbc.Tab(tab_images, label="Images", style=tab_style),
+            dbc.Tab(tab_papers, label="Publications", style=tab_style),
+            dbc.Tab(tab_links, label="Smart Links", style=tab_style),
+            dbc.Tab(tab_resources, label="Other Resources", style=tab_style),
         ]),
-        style={'width':'50%', 'height':'800px'})
+        style={'width':'50%', 'height':'1000px'})
 
 index_page = html.Div([
     navbar_landing,
@@ -100,8 +101,8 @@ explore_page = html.Div([
     navbar,
     dbc.Row([
         graph_layout,
-        tabs_layout    
-    ])
+        tabs_layout,
+    ], style = {'border':'0', 'margin':'0','padding':'0'})
     ])
 
 

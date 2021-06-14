@@ -94,34 +94,34 @@ def display_wiki(data, user):
                 html.H4(wiki['label'].capitalize()),
                 html.H6(wiki['description'].capitalize()),
                 dbc.Row([
-                    html.Img(src=wiki['image'], height='300px', style={'margin':'5px'}),
-                    html.Img(src=wiki['range'], height='300px', style={'margin':'5px'})],
+                    html.Img(src=wiki['image'], height='300px', style={'padding':'5px'}),
+                    html.Img(src=wiki['range'], height='300px', style={'padding':'5px'})],
                         no_gutters=True,
-                        style={'margin':'auto'}),
-                html.P(summary, style={'margin':'5px', 'fontSize':14}),
+                        style={'padding':'auto'}),
+                html.P(summary, style={'padding':'5px', 'fontSize':14}),
                 dbc.Row([
-                    html.P('Source:', style={'margin':'5px', 'fontSize':12}),
-                    dcc.Link('Wikipedia', href=url, target='_blank', style={'margin':'5px', 'fontSize':12}),
-                    dcc.Link('Wikidata', href=wiki['wikidata'], target='_blank', style={'margin':'5px', 'fontSize':12}),
+                    html.P('Source:', style={'padding':'5px', 'fontSize':12}),
+                    dcc.Link('Wikipedia', href=url, target='_blank', style={'padding':'5px', 'fontSize':12}),
+                    dcc.Link('Wikidata', href=wiki['wikidata'], target='_blank', style={'padding':'5px', 'fontSize':12}),
                     ],
                     no_gutters=True,
-                    style={'margin':'auto'})
+                    style={'padding':'auto'})
             ])
         else:
             element = html.Div('No Wikidata element found')
             '''
             wiki = loaders.get_wiki(taxon)
             element = html.Div([
-                html.P('No Wikidata element found. Result from Wikipedia instead.', style={'margin':'5px', 'fontSize':12}),
+                html.P('No Wikidata element found. Result from Wikipedia instead.', style={'padding':'5px', 'fontSize':12}),
                 html.H4(wiki[0].title),
-                html.Img(src=wiki[1], height='300px', style={'margin':'5px'}),
-                html.P(wiki[0].summary, style={'margin':'5px', 'fontSize':14}),
+                html.Img(src=wiki[1], height='300px', style={'padding':'5px'}),
+                html.P(wiki[0].summary, style={'padding':'5px', 'fontSize':14}),
                 dbc.Row([
-                    html.P('Source:', style={'margin':'5px', 'fontSize':12}),
-                    dcc.Link('Wikipedia', href=wiki[0].url, target='_blank', style={'margin':'5px', 'fontSize':12})
+                    html.P('Source:', style={'padding':'5px', 'fontSize':12}),
+                    dcc.Link('Wikipedia', href=wiki[0].url, target='_blank', style={'padding':'5px', 'fontSize':12})
                 ],
                     no_gutters=True,
-                    style={'margin':'auto'})
+                    style={'padding':'auto'})
             ])            
             '''
         return element
@@ -132,7 +132,7 @@ def display_images(data):
         return html.P('No Node Selected')
     else:
         images = loaders.get_images(int(data['id']),limit=12)
-        divs = [html.Div(html.Img(src=im, height='300px'), style={'margin':'5px'}) for im in images]
+        divs = [html.Div(html.Img(src=im, height='300px'), style={'padding':'5px'}) for im in images]
         carousel = dtc.Carousel(divs,
                     slides_to_scroll=1,
                     swipe_to_slide=True,
@@ -145,7 +145,7 @@ def display_images(data):
                 )
         element = html.Div([
             carousel,
-            html.P('Source: GBIF', style={'margin':'5px', 'fontSize':14}),
+            html.P('Source: GBIF', style={'padding':'5px', 'fontSize':14}),
         ])
         return element
 
@@ -255,7 +255,7 @@ def display_papers(data):
         paper_divs = [paper_layout(k,paper) for k,paper in data['papers'].items()]
         element = html.Div(paper_divs, 
             style={        
-                'height': '800px',
+                'height': '900px',
                 'overflow': 'auto',
                 'text-align': 'justify',
                 })
@@ -272,7 +272,7 @@ def display_paper_graph(data):
                 elements = data['paper_graph'],
                 zoom=2,
                 stylesheet= phylo_tree.small_stylesheet,
-                style={'width': '100%','height': '800px'}
+                style={'width': '100%','height': '900px'}
             )   
 
 @app.callback(
