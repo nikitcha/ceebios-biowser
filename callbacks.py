@@ -2,6 +2,7 @@ import dash
 import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
+from dash_leaflet.TileLayer import TileLayer
 import dash_trich_components as dtc
 from dash.dependencies import Output, Input, State, ALL
 import phylo_tree
@@ -213,11 +214,12 @@ def display_map(data):
         url_ = "https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@2x.png?srs=EPSG:3857&bin=hex&hexPerTile=64&style=purpleYellow-noborder.poly&taxonKey="+taxon
         element = html.Div([
             dl.Map([
-                dl.TileLayer(url=url, maxZoom=10, attribution=attribution),
+                #dl.TileLayer(url=url, maxZoom=10, attribution=attribution),
+                dl.TileLayer(),
                 dl.TileLayer(url=url_, maxZoom=10),
                 dl.EasyButton(icon='fa-home', n_clicks=0, id="btn")
-                ], zoom=2, animate=False, style={'height':'800px'}, id='map')
-        ], style={'height': '800px'})   
+                ], zoom=2, animate=False, style={'height':'750px'}, id='map')
+        ], style={'height': '750px'})   
         return element
 
 @app.callback(Output("map", "center"),
@@ -249,6 +251,7 @@ def get_papers(selected, next, reset, data, value):
 
 @app.callback(Output('papers-body', 'children'), Input('session-paper', 'data'))
 def display_papers(data):
+    print(data)
     if not data or 'papers' not in data:
         return html.P('No Node Selected')
     else:       

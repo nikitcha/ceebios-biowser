@@ -36,7 +36,7 @@ navbar_landing = dbc.Navbar(
             # Use row and col to control vertical alignment of logo / brand
             dbc.Row(
                 [
-                    dbc.Col(html.Img(src=app.get_asset_url('ico-ceebios.png'), height="30px")),
+                    dbc.Col(html.Img(src=app.get_asset_url('ceebios_logo.png'), height="30px")),
                     dbc.Col(dbc.NavbarBrand("CEEBIOS", style={'color':'#3D5170', 'margin-right':'10px'})),
                     dbc.Col(dbc.NavbarBrand("Biowser", style={'color':'#fb2056', 'margin-left':'10px'})),
                 ],
