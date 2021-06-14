@@ -245,7 +245,6 @@ def get_papers(selected, next, reset, data, value):
             offset = 0 if 'offset' not in data else data['offset']
         else:
             raise PreventUpdate
-        breakpoint()
         elements, papers = loaders.get_neo_papers(int(selected['id']),limit=value, offset=offset)
         data.update({'paper_graph':elements, 'papers':papers, 'offset':offset+value})
         return data

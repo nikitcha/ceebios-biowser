@@ -152,6 +152,8 @@ def get_neo_papers(taxon, limit=50, offset=0):
     skip {}
     limit {};
     """.format(','.join([str(s) for s in alltax]), offset, limit)
-
-    elements, papers = cypher_to_cytoscape(graph.run(query).data())
+    breakpoint()
+    data = graph.run(query).data()
+    breakpoint()
+    elements, papers = cypher_to_cytoscape(data)
     return elements, papers    
