@@ -234,6 +234,7 @@ def easy_btn(click):
 @app.callback(Output('session-paper', 'data'), Input('cytoscape', 'tapNodeData'), Input('papers-next', 'n_clicks'), Input('papers-reset', 'n_clicks'),  State('session-paper', 'data'), State('graph-size','value'))
 def get_papers(selected, next, reset, data, value):
     ctx = dash.callback_context
+    breakpoint()
     if not selected:
         return {}
     else:
@@ -251,7 +252,6 @@ def get_papers(selected, next, reset, data, value):
 
 @app.callback(Output('papers-body', 'children'), Input('session-paper', 'data'))
 def display_papers(data):
-    print(data)
     if not data or 'papers' not in data:
         return html.P('No Node Selected')
     else:       
