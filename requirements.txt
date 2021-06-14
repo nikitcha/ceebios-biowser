@@ -1,0 +1,14 @@
+dash_html_components==1.1.3
+dash_bootstrap_components==0.12.2
+dash_core_components==1.16.0
+dash_trich_components==0.0.9
+dash==1.20.0
+dash_cytoscape==0.3.0
+requests==2.25.1
+dash_leaflet==0.1.13
+pygbif==0.5.0
+Wikidata==0.7.0
+py2neo==2021.1.1
+qwikidata==0.4.0
+pandas==1.2.4
+wikipedia==1.4.0
