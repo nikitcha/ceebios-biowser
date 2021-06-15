@@ -6,6 +6,7 @@ import phylo_tree
 
 taxon_tab = html.Div([
     dcc.Store(id='session-graph', storage_type='session'),   
+    dcc.Store(id='session-selected', storage_type='session'),   
     html.Div([
         cyto.Cytoscape(
                 id='cytoscape',        

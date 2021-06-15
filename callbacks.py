@@ -263,6 +263,7 @@ def display_papers(data):
                 })
         return element
 
+
 @app.callback(Output('paper-graph-container', 'children'), Input('session-paper', 'data'))
 def display_paper_graph(data):
     if not data or 'paper_graph' not in data:

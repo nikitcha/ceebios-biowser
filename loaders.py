@@ -11,7 +11,7 @@ from utils import safe_get, deep_get
 import phylo_tree
 import neo4j_credentials as nc
 
-if False:
+if True:
     graph = Graph("bolt://localhost:7687", auth=(nc.user, nc.password))
 else:
     graph = Graph(nc.ip, auth=(nc.user, nc.password))

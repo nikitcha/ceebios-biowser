@@ -97,13 +97,21 @@ index_page = html.Div([
     navbar_landing,
     intro_layout])
 
+paper_pop = html.Div([
+    html.P('Hello There')
+    ],
+    style={'position':'absolute', 'width':'500px', 'height':'500px'}
+)
+
 explore_page = html.Div([
     navbar,
     dbc.Row([
         graph_layout,
         tabs_layout,
+        #paper_pop,
     ], style = {'border':'0', 'margin':'0','padding':'0'})
     ])
+
 
 
 
