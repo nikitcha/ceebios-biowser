@@ -263,20 +263,12 @@ def display_papers(data):
                 })
         return element
 
-
-@app.callback(Output('paper-graph-container', 'children'), Input('session-paper', 'data'))
+@app.callback(Output('cyto-paper', 'elements'), Input('session-paper', 'data'))
 def display_paper_graph(data):
-    if not data or 'paper_graph' not in data:
-        return html.P('No Node Selected')
-    else:  
-        return cyto.Cytoscape(
-                id='cyto-paper',        
-                layout = {'name': 'cose'},
-                elements = data['paper_graph'],
-                zoom=2,
-                stylesheet= phylo_tree.small_stylesheet,
-                style={'width': '100%','height': '900px'}
-            )   
+    if data and'paper_graph' in data:
+        return data['paper_graph']
+    else:
+        return []
 
 @app.callback(
     Output("cyto-paper", "generateImage"),
@@ -298,3 +290,10 @@ def paper_png(n_clicks):
         'action': 'download'
         }        
 
+@app.callback(Output('cytoscape','zoom'), Input('graph-zoom', 'value'))
+def graph_zoom(zoom):
+    return zoom
+
+@app.callback(Output('cyto-paper','zoom'), Input('paper-zoom', 'value'))
+def paper_zoom(zoom):
+    return zoom    

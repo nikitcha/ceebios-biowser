@@ -131,3 +131,4 @@ dmypy.json
 # Other
 neo4j_credentials.py
 __pycache__/
+data.db

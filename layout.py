@@ -91,7 +91,7 @@ tabs_layout = html.Div(
             dbc.Tab(tab_links, label="Smart Links", style=tab_style),
             dbc.Tab(tab_resources, label="Other Resources", style=tab_style),
         ]),
-        style={'width':'50%', 'height':'1000px'})
+        style={'width':'50%', 'height':'900px'})
 
 index_page = html.Div([
     navbar_landing,
