@@ -2,6 +2,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import sys
+
+from pandas.io.formats import style
 sys.path.append('gbif_autosuggest')
 import gbif_autosuggest
 import os
@@ -79,14 +81,17 @@ tab_images = html.Div(id='images-body')
 tab_maps = html.Div(id='maps-body')
 keys = list(climate.climate_dict.keys())
 tab_climate = html.Div([
-            dcc.RadioItems(
+            dbc.Row([
+                html.Div('Climate data statistics for species geographical range. Source: GBIF & WorlClim.org', style={'fontSize':14, 'padding-left':'10px', 'margin-bottom':'20px'})
+            ]),
+            dbc.Row(dcc.RadioItems(
                 id='climate-radio', 
                 options=[{'value': x, 'label': x} 
                         for x in keys],
                 value=keys[0], 
                 labelStyle={'display': 'inline-block', 'padding':'5px','fontSize':14}
-            ),            
-            dcc.Graph(id="climate-box-plot"),
+            )),            
+            dbc.Row(dcc.Graph(id="climate-box-plot", style={'margin':0, 'paddding':0})),
         ])
 tab_links = html.Div(id='links-body')
 tab_wiki = html.Div(id='wiki-body')
