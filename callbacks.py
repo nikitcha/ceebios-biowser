@@ -1,18 +1,19 @@
 import dash
-import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
-from dash_leaflet.TileLayer import TileLayer
 import dash_trich_components as dtc
-from dash.dependencies import Output, Input, State, ALL
-import phylo_tree
+from dash.dependencies import Output, Input, State
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
+from pandas.core.groupby.generic import DataFrameGroupBy
 import loaders
 import urllib
 import dash_leaflet as dl
+import plotly.graph_objects as go
+
 from app import app
 from utils import paper_layout, clean_graph, get_connection, get_userdata, add_userdata
+import climate
 connection = get_connection()
 
 @app.callback([Output('session-graph', 'data'), Output("history-container", "options")], 
@@ -297,3 +298,16 @@ def graph_zoom(zoom):
 @app.callback(Output('cyto-paper','zoom'), Input('paper-zoom', 'value'))
 def paper_zoom(zoom):
     return zoom    
+
+
+@app.callback(Output('climate-box-plot', 'figure'), Input('cytoscape', 'tapNodeData'), Input('climate-radio', 'value'))
+def display_climate(data, value):
+    fig = go.Figure()
+    if data:
+        taxon = int(data['id'])
+        data = climate.get_climate_data(value)
+        distribution = climate.get_taxon_distribution(taxon)
+        df = climate.calc_stat(data, distribution)
+        for col in df:
+            fig.add_trace(go.Box(y=df[col].values, name=df[col].name))
+    return fig

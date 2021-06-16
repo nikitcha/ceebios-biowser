@@ -132,3 +132,4 @@ dmypy.json
 neo4j_credentials.py
 __pycache__/
 data.db
+climate/

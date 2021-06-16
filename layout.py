@@ -9,6 +9,7 @@ import dash
 app = dash.Dash(__name__)
 from layouts.landing_page import intro_layout
 from layouts.graph_tab import graph_layout
+import climate
 
 search_bar_landing = dbc.Row(
     [
@@ -76,6 +77,17 @@ navbar = dbc.Navbar(
 tab_papers = html.Div(id='papers-body')
 tab_images = html.Div(id='images-body')
 tab_maps = html.Div(id='maps-body')
+keys = list(climate.climate_dict.keys())
+tab_climate = html.Div([
+            dcc.RadioItems(
+                id='climate-radio', 
+                options=[{'value': x, 'label': x} 
+                        for x in keys],
+                value=keys[0], 
+                labelStyle={'display': 'inline-block', 'padding':'5px','fontSize':14}
+            ),            
+            dcc.Graph(id="climate-box-plot"),
+        ])
 tab_links = html.Div(id='links-body')
 tab_wiki = html.Div(id='wiki-body')
 tab_resources = html.Div(id='resources-body')
@@ -88,6 +100,7 @@ tabs_layout = html.Div(
             dbc.Tab(tab_wiki, label="Wikipedia", style=tab_style),
             dbc.Tab(tab_images, label="Images", style=tab_style),
             dbc.Tab(tab_papers, label="Publications", style=tab_style),
+            dbc.Tab(tab_climate, label="Climate", style=tab_style),
             dbc.Tab(tab_links, label="Smart Links", style=tab_style),
             dbc.Tab(tab_resources, label="Other Resources", style=tab_style),
         ]),
