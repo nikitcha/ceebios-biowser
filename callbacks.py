@@ -100,11 +100,11 @@ def display_wiki(data, user):
                     html.Img(src=wiki['range'], height='300px', style={'padding':'5px'})],
                         no_gutters=True,
                         style={'padding':'auto'}),
-                html.P(summary, style={'padding':'5px', 'fontSize':14}),
+                html.P(summary, style={'padding':'5px', 'font-size':14}),
                 dbc.Row([
-                    html.P('Source:', style={'padding':'5px', 'fontSize':12}),
-                    dcc.Link('Wikipedia', href=url, target='_blank', style={'padding':'5px', 'fontSize':12}),
-                    dcc.Link('Wikidata', href=wiki['wikidata'], target='_blank', style={'padding':'5px', 'fontSize':12}),
+                    html.P('Source:', style={'padding':'5px', 'font-size':12}),
+                    dcc.Link('Wikipedia', href=url, target='_blank', style={'padding':'5px', 'font-size':12}),
+                    dcc.Link('Wikidata', href=wiki['wikidata'], target='_blank', style={'padding':'5px', 'font-size':12}),
                     ],
                     no_gutters=True,
                     style={'padding':'auto'})
@@ -114,13 +114,13 @@ def display_wiki(data, user):
             '''
             wiki = loaders.get_wiki(taxon)
             element = html.Div([
-                html.P('No Wikidata element found. Result from Wikipedia instead.', style={'padding':'5px', 'fontSize':12}),
+                html.P('No Wikidata element found. Result from Wikipedia instead.', style={'padding':'5px', 'font-size':12}),
                 html.H4(wiki[0].title),
                 html.Img(src=wiki[1], height='300px', style={'padding':'5px'}),
-                html.P(wiki[0].summary, style={'padding':'5px', 'fontSize':14}),
+                html.P(wiki[0].summary, style={'padding':'5px', 'font-size':14}),
                 dbc.Row([
-                    html.P('Source:', style={'padding':'5px', 'fontSize':12}),
-                    dcc.Link('Wikipedia', href=wiki[0].url, target='_blank', style={'padding':'5px', 'fontSize':12})
+                    html.P('Source:', style={'padding':'5px', 'font-size':12}),
+                    dcc.Link('Wikipedia', href=wiki[0].url, target='_blank', style={'padding':'5px', 'font-size':12})
                 ],
                     no_gutters=True,
                     style={'padding':'auto'})
@@ -147,7 +147,7 @@ def display_images(data):
                 )
         element = html.Div([
             carousel,
-            html.P('Source: GBIF', style={'padding':'5px', 'fontSize':14}),
+            html.P('Source: GBIF', style={'padding':'5px', 'font-size':14}),
         ])
         return element
 
@@ -197,10 +197,10 @@ def display_resources(data):
         name = data['label']
         return html.Div([dbc.Tabs(
         [
-            dbc.Tab(html.Embed(src="https://tree.opentreeoflife.org/", style={'width':'100%', 'height':'700px'}), label="Tree of Life"),
-            dbc.Tab(html.Embed(src="https://eol.org/search?q={}".format(name.replace(' ','+')),style={'width':'100%', 'height':'700px'}), label="EOL"),
-            dbc.Tab(html.Embed(src="https://www.onezoom.org/AT/@biota=93302?img=best_any&anim=jump#x775,y1113,w1.4450", style={'width':'100%', 'height':'700px'}), label="OneZoom"),
-            dbc.Tab(html.Embed(src="https://openknowledgemaps.org/",style={'width':'100%', 'height':'700px'}), label="Open Knowledge Map")
+            dbc.Tab(html.Embed(src="https://tree.opentreeoflife.org/", className='resources-container'), label="Tree of Life"),
+            dbc.Tab(html.Embed(src="https://eol.org/search?q={}".format(name.replace(' ','+')),className='resources-container'), label="EOL"),
+            dbc.Tab(html.Embed(src="https://www.onezoom.org/AT/@biota=93302?img=best_any&anim=jump#x775,y1113,w1.4450", className='resources-container'), label="OneZoom"),
+            dbc.Tab(html.Embed(src="https://openknowledgemaps.org/",className='resources-container'), label="Open Knowledge Map")
         ])])
 
 
@@ -210,8 +210,6 @@ def display_map(data):
         return html.P('No Node Selected')
     else:
         taxon = data['id']        
-        url = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
-        attribution = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> '
         url_ = "https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@2x.png?srs=EPSG:3857&bin=hex&hexPerTile=64&style=purpleYellow-noborder.poly&taxonKey="+taxon
         element = html.Div([
             dl.Map([
@@ -219,8 +217,8 @@ def display_map(data):
                 dl.TileLayer(),
                 dl.TileLayer(url=url_, maxZoom=10),
                 dl.EasyButton(icon='fa-home', n_clicks=0, id="btn")
-                ], zoom=2, animate=False, style={'height':'750px'}, id='map')
-        ], style={'height': '750px'})   
+                ], zoom=2, animate=False, className='map', id='map')
+        ], className='map-div')   
         return element
 
 @app.callback(Output("map", "center"),
@@ -256,12 +254,7 @@ def display_papers(data):
         return html.P('No Node Selected')
     else:       
         paper_divs = [paper_layout(k,paper) for k,paper in data['papers'].items()]
-        element = html.Div(paper_divs, 
-            style={        
-                'height': '900px',
-                'overflow': 'auto',
-                'text-align': 'justify',
-                })
+        element = html.Div(paper_divs, className='paper-tab')
         return element
 
 @app.callback(Output('cyto-paper', 'elements'), Input('session-paper', 'data'))
