@@ -10,6 +10,7 @@ import loaders
 import urllib
 import dash_leaflet as dl
 import plotly.graph_objects as go
+from plotly.figure_factory import create_distplot
 
 from app import app
 from utils import paper_layout, clean_graph, get_connection, get_userdata, add_userdata
@@ -230,13 +231,15 @@ def easy_btn(click):
     return center, zoom
 
  
-@app.callback(Output('session-paper', 'data'), Input('cytoscape', 'tapNodeData'), Input('papers-next', 'n_clicks'), Input('papers-reset', 'n_clicks'),  State('session-paper', 'data'), State('graph-size','value'))
-def get_papers(selected, next, reset, data, value):
+@app.callback(Output('session-paper', 'data'), Input('cytoscape', 'tapNodeData'), Input('papers-next', 'n_clicks'), Input('papers-next-2', 'n_clicks'), Input('papers-reset', 'n_clicks'),  State('session-paper', 'data'), State('graph-size','value'))
+def get_papers(selected, next, next2, reset, data, value):
     ctx = dash.callback_context
     if not selected:
         return {}
     else:
         if ctx.triggered[0]['prop_id']=='papers-next.n_clicks':      
+            offset = 0 if 'offset' not in data else data['offset']        
+        elif ctx.triggered[0]['prop_id']=='papers-next-2.n_clicks':      
             offset = 0 if 'offset' not in data else data['offset']
         elif ctx.triggered[0]['prop_id']=='papers-reset.n_clicks':
             offset = 0
@@ -300,7 +303,10 @@ def display_climate(data, value):
         taxon = int(data['id'])
         data = climate.get_climate_data(value)
         distribution = climate.get_taxon_distribution(taxon)
-        df = climate.calc_stat(data, distribution)
-        for col in df:
-            fig.add_trace(go.Box(y=df[col].values, name=df[col].name))
+        df, vstat = climate.calc_stat(data, distribution)
+        if value=='Elevation':
+            fig = create_distplot([vstat], ['Altitude Distribution (meters)'])
+        else:
+            for col in df:
+                fig.add_trace(go.Box(y=df[col].values, name=df[col].name))
     return fig

@@ -92,4 +92,4 @@ def calc_stat(data, distribution):
         vstat = numpy.reshape(stat[:,:,0], -1,)
         vstat = vstat[numpy.isfinite(vstat)]
         aggstat = {'Elevation':[numpy.percentile(vstat, p) for p in ptiles]}
-    return pandas.DataFrame.from_dict(aggstat)
+    return pandas.DataFrame.from_dict(aggstat), vstat

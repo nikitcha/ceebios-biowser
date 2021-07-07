@@ -56,7 +56,7 @@ navbar = dbc.Navbar(
     color="light", dark=False)
 
 
-tab_papers = html.Div(id='papers-body')
+tab_papers = html.Div([html.Div(id='papers-body'), dbc.Button("Next", id='papers-next-2')])
 tab_images = html.Div(id='images-body')
 tab_maps = html.Div(id='maps-body')
 keys = list(climate.climate_dict.keys())
