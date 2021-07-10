@@ -70,15 +70,10 @@ def get_taxon_distribution(taxon, res=1024):
     distribution = (img[:,:,0] + 1-img[:,:,1])*img[:,:,3]
     return distribution
 
-def calc_stat(data, distribution):
-    maxint = 32767
-    mindata = numpy.min(data)
-    maxdata = numpy.max(data)
-    scaled = (data-mindata)/(maxdata-mindata)*maxint
-    resized = cv2.resize(scaled.astype('int16'), (distribution.shape[1],distribution.shape[0]), interpolation= cv2.INTER_LINEAR)
-    _data = resized/maxint*(maxdata-mindata)+mindata
+def calc_stat(src, distribution):
+    _data = numpy.load('./climate/'+climate_dict[src]+'.npy')
     distribution[distribution==0] = numpy.nan
-    stat = numpy.atleast_3d(_data)*distribution[:,:,None]
+    stat = _data*distribution[:,:,None]
     vstat = numpy.reshape(stat, -1)
     vstat = vstat[numpy.isfinite(vstat)]
     ptiles = [0.1,25,50,75,99.9]
@@ -93,3 +88,17 @@ def calc_stat(data, distribution):
         vstat = vstat[numpy.isfinite(vstat)]
         aggstat = {'Elevation':[numpy.percentile(vstat, p) for p in ptiles]}
     return pandas.DataFrame.from_dict(aggstat), vstat
+
+def preprocess_climate_data(shape=(2048,1024)):
+    for k in list(climate_dict.keys()):
+        data = get_climate_data(k)
+        maxint = 32767
+        mindata = numpy.min(data)
+        maxdata = numpy.max(data)
+        scaled = (data-mindata)/(maxdata-mindata)*maxint
+        resized = cv2.resize(scaled.astype('int16'), shape, interpolation= cv2.INTER_LINEAR)
+        _data = resized/maxint*(maxdata-mindata)+mindata
+        _data = numpy.atleast_3d(_data)
+        print(_data.shape)
+        numpy.save('./climate/'+climate_dict[k], _data)
+
