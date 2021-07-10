@@ -248,7 +248,7 @@ def get_papers(selected, next, next2, reset, data, value):
         else:
             raise PreventUpdate
         elements, papers = loaders.get_neo_papers(int(selected['id']),limit=value, offset=offset)
-        data.update({'paper_graph':elements, 'papers':papers, 'offset':offset+value})
+        data.update({'paper_graph':elements, 'papers':papers, 'offset':offset+value})        
         return data
 
 @app.callback(Output('papers-body', 'children'), Input('session-paper', 'data'))
@@ -295,15 +295,13 @@ def graph_zoom(zoom):
 def paper_zoom(zoom):
     return zoom    
 
-
 @app.callback(Output('climate-box-plot', 'figure'), Input('cytoscape', 'tapNodeData'), Input('climate-radio', 'value'))
 def display_climate(data, value):
     fig = go.Figure()
     if data:
         taxon = int(data['id'])
-        data = climate.get_climate_data(value)
         distribution = climate.get_taxon_distribution(taxon)
-        df, vstat = climate.calc_stat(data, distribution)
+        df, vstat = climate.calc_stat(value, distribution)
         if value=='Elevation':
             fig = create_distplot([vstat], ['Altitude Distribution (meters)'])
         else:
