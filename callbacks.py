@@ -231,16 +231,16 @@ def easy_btn(click):
     return center, zoom
 
  
-@app.callback(Output('session-paper', 'data'), Input('cytoscape', 'tapNodeData'), Input('papers-next', 'n_clicks'), Input('papers-next-2', 'n_clicks'), Input('papers-reset', 'n_clicks'),  State('session-paper', 'data'), State('graph-size','value'))
-def get_papers(selected, next, next2, reset, data, value):
+@app.callback(Output('session-paper', 'data'), Input('cytoscape', 'tapNodeData'), Input('papers-next', 'n_clicks'), Input('papers-reset', 'n_clicks'),  State('session-paper', 'data'), State('graph-size','value'))
+def get_papers(selected, next, reset, data, value):
     ctx = dash.callback_context
     if not selected:
         return {}
     else:
         if ctx.triggered[0]['prop_id']=='papers-next.n_clicks':      
             offset = 0 if 'offset' not in data else data['offset']        
-        elif ctx.triggered[0]['prop_id']=='papers-next-2.n_clicks':      
-            offset = 0 if 'offset' not in data else data['offset']
+        #elif ctx.triggered[0]['prop_id']=='papers-next-2.n_clicks':      
+        #    offset = 0 if 'offset' not in data else data['offset']
         elif ctx.triggered[0]['prop_id']=='papers-reset.n_clicks':
             offset = 0
         elif ctx.triggered[0]['prop_id']=='cytoscape.tapNodeData':
