@@ -255,7 +255,9 @@ def get_papers(selected, next, reset, data, value):
 def display_papers(data):
     if not data or 'papers' not in data:
         return html.P('No Node Selected')
-    else:       
+    else:
+        if len(data['papers'])==0:
+            return 'No (more) Papers Found'
         paper_divs = [paper_layout(k,paper) for k,paper in data['papers'].items()]
         element = html.Div(paper_divs, className='paper-tab')
         return element
