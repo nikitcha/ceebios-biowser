@@ -93,9 +93,11 @@ def display_wiki(data, user):
                 url = wiki['page'].url
             except:
                 url = ''
+            label = wiki['label'].capitalize() if wiki['label'] else ''
+            desc = wiki['description'].capitalize() if wiki['description'] else ''
             element = html.Div([
-                html.H4(wiki['label'].capitalize()),
-                html.H6(wiki['description'].capitalize()),
+                html.H4(label),
+                html.H6(desc),
                 dbc.Row([
                     html.Img(src=wiki['image'], height='300px', style={'padding':'5px'}),
                     html.Img(src=wiki['range'], height='300px', style={'padding':'5px'})],
