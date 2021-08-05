@@ -19,6 +19,18 @@ ORDER = {
   'VARIETY':9,
 }
 
+ALLCOLORS = {
+  'SPECIES':"#fb2056",
+  'GENUS':"#fc8f5b",
+  'FAMILY':"#ffd055",
+  'ORDER':"#8dd58c",
+  'CLASS':"#38c9b1",
+  'PHYLUM':"#1798c3",
+  'KINGDOM':"#182573",
+  'FUNCTION':"#F7E7CE",
+  'PAPER':"#AFDCEC",
+}
+
 small_stylesheet = [
           {
             'selector': 'node',

@@ -84,10 +84,10 @@ tab_resources = html.Div(id='resources-body')
 tabs_layout = html.Div(
     dbc.Tabs(
         [
+            dbc.Tab(tab_maps, label="Maps", className='single-tab'),
             dbc.Tab(tab_images, label="Images", className='single-tab'),
             dbc.Tab(tab_wiki, label="Wikipedia", className='single-tab'),
             dbc.Tab(tab_papers, label="Publications", className='single-tab'),
-            dbc.Tab(tab_maps, label="Maps", className='single-tab'),
             dbc.Tab(tab_climate, label="Climate", className='single-tab'),
             dbc.Tab(tab_links, label="Smart Links", className='single-tab'),
             dbc.Tab(tab_resources, label="Other Resources", className='single-tab'),
@@ -99,7 +99,7 @@ index_page = html.Div([
     intro_layout])
 
 legend = html.Div(
-   [html.Div('● '+k,style={'fontSize':9,'color':v}) for k,v in phylo_tree.COLORS.items()], 
+   [html.Div('● '+k,style={'fontSize':9,'color':v}) for k,v in phylo_tree.ALLCOLORS.items()], 
    style={'position':'absolute','margin-top':'50px', 'margin-left':'10px'})
 
 explore_page = html.Div([
